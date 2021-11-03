@@ -1,4 +1,6 @@
-#This is a youtube Bot that is able to view a video,and eventuallly add views on youtube videos
+#This is a youtube Bot that is able to view a video,and eventually add views on youtube videos
+"""Author : X
+   ©2021 David Mugalla"""
 
 import logging
 from selenium import webdriver
