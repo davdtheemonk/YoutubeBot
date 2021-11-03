@@ -83,7 +83,7 @@ def viewAction(soup):
 
     else:
         print("Terminating Activity")
-        exit -1
+        exit(-1)
 
 
 def vidScrapper(page):
