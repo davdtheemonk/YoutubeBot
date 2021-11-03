@@ -17,3 +17,11 @@ install requirements
 ```py3 youtubebot.py```
 
 enter valid Youtube video URL where neccessary.
+
+### Features
+
+- Maximum watch-time supported
+- Unlimited number of views
+
+
+Your welcome to contribute to this project!!!!
