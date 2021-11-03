@@ -1,6 +1,7 @@
 # YoutubeViews
 >Free Youtube viewer bot
-A Bot that adds YouTube views to videos
+
+A Bot that adds YouTube views to your video of choice
 
 ## Installation 
 
