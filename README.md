@@ -1,7 +1,9 @@
 # YoutubeViews
 >Free Youtube viewer bot
 
-![proof](./Screenshots/pro.PNG)
+<p align="center">
+  <img src="./Screenshots/pro.PNG" width="650" title="hover text">
+</p>
 
 A Bot that adds YouTube views to your video of choice
 
