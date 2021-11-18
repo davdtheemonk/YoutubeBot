@@ -13,6 +13,8 @@ A Bot that adds YouTube views to your video of choice
 
 ```cd YoutubeViews```
 
+Install ChromeDriver Version ~ 96.0.4664.45
+
 install requirements
 
 ### Usage
