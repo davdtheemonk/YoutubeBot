@@ -1,5 +1,6 @@
 #This is a youtube Bot that is able to view a video,and eventually add views on youtube videos
 #Code cheza kiwewe
+#Tested and works on Windows Machine.
 """Author : X
    ©2021 David Mugalla"""
 
