@@ -10,7 +10,6 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import pafy
 import requests
 import re
 from bs4 import BeautifulSoup
@@ -22,10 +21,7 @@ logging.basicConfig(filename='Botlogs.log', filemode='w', format='%(name)s - %(l
 
 page  = requests.get(URL)
 
-
-def viewAction(soup):
-
-    
+def viewAction(soup, duration_seconds):
     viewCounter = 0
     ans = input("Is this the video you want to get more views : y or n ? ")
     newViews = int(input("How many views would you like to add? "))
@@ -34,33 +30,26 @@ def viewAction(soup):
         
         while(viewCounter<newViews):
             ChromeOptions = Options()
-            ChromeOptions.headless = True
-            browser = webdriver.Chrome(executable_path=r" ",chrome_options=ChromeOptions)#Your chrome driver goes here
+            # Modern headless configuration
+            ChromeOptions.add_argument("--headless=new") 
+            
+            # No executable_path needed; modern Selenium handles this automatically
+            browser = webdriver.Chrome(options=ChromeOptions)
             browser.get(URL)
             browser.implicitly_wait(10)
-            #playButton = browser.find_elements_by_xpath("//*[@class='ytp-large-play-button ytp-button']") #For Chrome Users
-            #playButton = browser.find_element_by_id("player-container") #For Firefox Users 
-            #playButton.click()
-            WebDriverWait(browser,15).until(EC.element_to_be_clickable((By.XPATH,"//button[@aria-label='Play']"))).click()
-            #browser.refresh()#if videos autoplay
-            print("---------------------")
-            print("Video has started playing "+ "\U0001F910")
-            print("---------------------")
-            logging.info("Video has started playing")
-            #For 100% watchtime
-            video = pafy.new(URL)
-            time = video.duration#find the duration of the video
-            h,m,s = time.split(':')
-            h = int(h)
-            m = int(m)
-            s = int(s)
-            if (h!=0):
-                sleep(h*60*60)#give time to the bot to view your video
-            elif(h==0):
-                if(m!=0):
-                    sleep(m*60)
-            else:
-                sleep(s)
+            
+            try:
+                WebDriverWait(browser,15).until(EC.element_to_be_clickable((By.XPATH,"//button[@aria-label='Play']"))).click()
+                print("---------------------")
+                print("Video has started playing "+ "\U0001F910")
+                print("---------------------")
+                logging.info("Video has started playing")
+                
+                # Sleep based on the scraped duration passed into the function
+                sleep(duration_seconds)
+                
+            except Exception as e:
+                logging.error(f"Failed to play video or wait timed out: {e}")
 
             viewCounter+=1
             print("---------------------")
@@ -77,11 +66,7 @@ def viewAction(soup):
                     print(f"final view Count : " + finalview + "\n")
                     logging.info("final view Count : " + finalview + "\n")
 
-            
             sleep(2)
-
-
-
     else:
         print("Terminating Activity")
         exit(-1)
@@ -91,14 +76,12 @@ def vidScrapper(page):
     soup = BeautifulSoup(page.content,"html.parser")
     regex = re.compile(r'^(http(s)??\:\/\/)?(www\.)?((youtube\.com\/watch\?v=)|(youtu.be\/))([a-zA-Z0-9\-_])+')
 
-#Finding possible information about the url of the video
-    result ={}
+    duration_seconds = 30 # Default safety fallback duration
+    
     if regex.match(URL):
         try:
             print("Valid URL\n")
             logging.info("Found information about video")
-
-        #Scraps page to find info about the video your requesting
 
             print("\n     ==============================================      \n")
             for info in soup.findAll('div',attrs={'class':'watch-main-col'}):
@@ -111,7 +94,6 @@ def vidScrapper(page):
                 print(f'Date Published :' + date + "\n")
                 logging.info('Date :' + date + "\n")
             
-    
             for view in soup.findAll('div',attrs={'class':'watch-main-col'}):
                 view = view.find("meta", itemprop="interactionCount")['content']
                 print(f"Initial view Count : " + view + "\n")
@@ -121,27 +103,30 @@ def vidScrapper(page):
                 desc = desc.find("meta", itemprop="description")['content']
                 print(f"Description : " + desc + "\n")
                 logging.info("Description : " + desc + "\n")
+                
+            # Internal replacement for pafy: extracts ISO 8601 duration string (e.g., PT4M35S)
+            duration_meta = soup.find("meta", itemprop="duration")
+            if duration_meta:
+                iso_duration = duration_meta['content'] # Example: PT5M12S
+                numbers = re.findall(r'\d+', iso_duration)
+                if 'H' in iso_duration and 'M' in iso_duration and 'S' in iso_duration:
+                    duration_seconds = int(numbers[0])*3600 + int(numbers[1])*60 + int(numbers[2])
+                elif 'M' in iso_duration and 'S' in iso_duration:
+                    duration_seconds = int(numbers[0])*60 + int(numbers[1])
+                elif 'S' in iso_duration:
+                    duration_seconds = int(numbers[0])
     
             print("\n     ==============================================      \n")
             
-    
-        except:
-            logging.error("An Error occured while finding the video")
+        except Exception as e:
+            logging.error(f"An Error occured while finding the video: {e}")
             exit(-1)
     else :
         print("Invalid URL please enter a valid Youtube Video URL")
         exit(-1)
        
-    return viewAction(soup)
-
-
-
-
-    
-     
+    return viewAction(soup, duration_seconds)
 
 if __name__ == "__main__":
-    vidScrapper(page)
     logging.info('Starting program')
-    
-    
+    vidScrapper(page)
